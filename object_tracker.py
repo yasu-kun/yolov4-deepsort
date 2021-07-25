@@ -1,4 +1,5 @@
 import os
+import csv
 # comment out below line to enable tensorflow logging outputs
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import time
@@ -157,10 +158,10 @@ def main(_argv):
         class_names = utils.read_class_names(cfg.YOLO.CLASSES)
 
         # by default allow all classes in .names file
-        allowed_classes = list(class_names.values())
+        #allowed_classes = list(class_names.values())
         
         # custom allowed classes (uncomment line below to customize tracker for only people)
-        #allowed_classes = ['person']
+        allowed_classes = ['person']
 
         # loop through objects and use class index to get class name, allow only classes in allowed_classes list
         names = []
@@ -216,6 +217,17 @@ def main(_argv):
 
         # if enable info flag then print details about each track
             if FLAGS.info:
+                save_path = '/content/out.csv'
+                if os.path.exists(save_path)==False:
+                    with open(save_path,'w') as f:
+                        writer = csv.writer(f)
+                        writer.writerow([frame_num, str(track.track_id), class_name, int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])])
+                else:
+                    with open(save_path,'a') as f:
+                        writer = csv.writer(f)
+                        writer.writerow([frame_num, str(track.track_id), class_name, int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])])
+
+                
                 print("Tracker ID: {}, Class: {},  BBox Coords (xmin, ymin, xmax, ymax): {}".format(str(track.track_id), class_name, (int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3]))))
 
         # calculate frames per second of running detections
@@ -238,3 +250,4 @@ if __name__ == '__main__':
         app.run(main)
     except SystemExit:
         pass
+
